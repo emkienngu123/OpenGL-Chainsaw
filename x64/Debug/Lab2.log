@@ -1,0 +1,13 @@
+﻿  Lab2.cpp
+C:\Users\ad\source\repos\Lab2\Lab2\supportClass.h(100,17): error C4596: 'draw': illegal qualified name in member declaration
+  (compiling source file 'Lab2.cpp')
+  
+  Mesh.cpp
+C:\Users\ad\source\repos\Lab2\Lab2\supportClass.h(100,17): error C4596: 'draw': illegal qualified name in member declaration
+  (compiling source file 'Mesh.cpp')
+  
+  supportClass.cpp
+C:\Users\ad\source\repos\Lab2\Lab2\supportClass.h(100,17): error C4596: 'draw': illegal qualified name in member declaration
+  (compiling source file 'supportClass.cpp')
+  
+  Generating Code...
