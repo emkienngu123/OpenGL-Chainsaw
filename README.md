@@ -32,6 +32,10 @@ It demonstrates hierarchical modeling, transformations, and basic animation cont
 | **1** | Rotate the wheel clockwise (start the chainsaw motion) |
 | **2** | Rotate the wheel counterclockwise (reverse motion) |
 | **ESC** | Exit the program |
+| **v or V** | 2D to 3D and vice versa |
+| **key_left,key_right** | adjust camera angle |
+| **key_up,key_down** | adjust camera height |
+
 
 ---
 

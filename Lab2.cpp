@@ -12,6 +12,14 @@ int		screenHeight = 300;
 
 float wheelAngle = 0;
 
+bool is3D = true;
+
+float camera_angle;
+float camera_height;
+float camera_dis;
+float camera_X, camera_Y, camera_Z;
+float lookAt_X, lookAt_Y, lookAt_Z;
+
 Mesh	tetrahedron;
 Mesh	cube;
 Mesh cuboid;
@@ -25,6 +33,32 @@ Mesh shape5;
 Mesh cone;
 
 int		nChoice = 1;
+
+
+
+void mySpecialKeyboard(int key, int x, int y)
+{
+	switch (key)
+	{
+	case GLUT_KEY_LEFT:
+		camera_angle -= 5.0f;  // rotate camera left
+		break;
+	case GLUT_KEY_RIGHT:
+		camera_angle += 5.0f;  // rotate camera right
+		break;
+	case GLUT_KEY_UP:
+		camera_height += 0.2f; // move camera up
+		break;
+	case GLUT_KEY_DOWN:
+		camera_height -= 0.2f; // move camera down
+		break;
+	}
+
+	glutPostRedisplay(); // request redraw
+}
+
+
+
 
 void holder() {
 	Mesh holder_cuboid;
@@ -153,13 +187,98 @@ void drawAxis()
 }
 
 
+
+
+void myInit()
+{
+	float	fHalfSize = 4;
+	camera_angle = 45;
+	camera_height = 3;
+	camera_dis = 7;
+	lookAt_X = 0;
+	lookAt_Y = 0;
+	lookAt_Z = 0;
+
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+	glFrontFace(GL_CCW);
+	glEnable(GL_DEPTH_TEST);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(-fHalfSize, fHalfSize, -fHalfSize, fHalfSize, -1000, 1000);
+}
+
+
+
+void myKeyboard(unsigned char key, int x, int y) {
+	switch (key) {
+	case '1':
+		wheelAngle += 5.0f;  // rotate clockwise
+		if (wheelAngle >= 360.0f) wheelAngle -= 360.0f;
+		glutPostRedisplay(); // ask GLUT to redraw
+		break;
+	case '2':
+		wheelAngle -= 5.0f;  // rotate counterclockwise
+		if (wheelAngle < 0.0f) wheelAngle += 360.0f;
+		glutPostRedisplay();
+		break;
+	case 'v':
+	case 'V':
+		is3D = !is3D;
+		glutPostRedisplay();
+		break;
+	}
+}
+
+void calculateCameraPosition() {
+	camera_X = camera_dis * sin(camera_angle * 3.14 / 180.0);
+	camera_Y = camera_height;
+	camera_Z = camera_dis * cos(camera_angle * 3.14 / 180.0);
+	lookAt_X = 0;
+	lookAt_Y = 0;
+	lookAt_Z = 0;
+}
+
+
+void setCamera() {
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	if (is3D) {
+		// 3D perspective view
+		gluPerspective(60.0, (float)screenWidth / screenHeight, 0.1, 1000.0);
+	}
+	else {
+		// 2D orthographic view
+		float fHalfSize = 4;
+		glOrtho(-fHalfSize, fHalfSize, -fHalfSize, fHalfSize, -1000, 1000);
+	}
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	calculateCameraPosition();
+	if (is3D) {
+		// 3D camera
+		gluLookAt(camera_X, camera_Y, camera_Z, lookAt_X, lookAt_Y, lookAt_Z, 0, 1, 0);
+	}
+	else {
+		// 2D camera — just look from front
+		gluLookAt(0, 0, camera_height, 0, 0, 0, 0, 1, 0);
+	}
+}
+
+
+
 void myDisplay()
 {
+
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	gluLookAt(4.5, 4, 2, 0, 0, 0, 0, 1, 0);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	setCamera();
 	drawAxis();
 
 
@@ -167,13 +286,13 @@ void myDisplay()
 	glRotatef(180, 0, 1, 0);
 	holder();
 	glPopMatrix();
-	
+
 	glPushMatrix();
-	
+
 	if (wheelAngle >= 45 && wheelAngle <= 45 + 270) {
 		glTranslatef(0, -1, -0.85);
 	}
-	else{
+	else {
 		glTranslatef(0, -3, -0.85);
 	}
 	glRotatef(-90, 1, 0, 0);
@@ -250,38 +369,6 @@ void myDisplay()
 	glutSwapBuffers();
 }
 
-void myInit()
-{
-	float	fHalfSize = 4;
-
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-
-	glFrontFace(GL_CCW);
-	glEnable(GL_DEPTH_TEST);
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(-fHalfSize, fHalfSize, -fHalfSize, fHalfSize, -1000, 1000);
-}
-
-
-
-void myKeyboard(unsigned char key, int x, int y) {
-	switch (key) {
-	case '1':
-		wheelAngle += 5.0f;  // rotate clockwise
-		if (wheelAngle >= 360.0f) wheelAngle -= 360.0f;
-		glutPostRedisplay(); // ask GLUT to redraw
-		break;
-	case '2':
-		wheelAngle -= 5.0f;  // rotate counterclockwise
-		if (wheelAngle < 0.0f) wheelAngle += 360.0f;
-		glutPostRedisplay();
-		break;
-	}
-}
-
-
 int main(int argc, char* argv[])
 {
 	//cout << "1. Tetrahedron" << endl;
@@ -319,6 +406,7 @@ int main(int argc, char* argv[])
 	myInit();
 	glutDisplayFunc(myDisplay);
 	glutKeyboardFunc(myKeyboard);
+	glutSpecialFunc(mySpecialKeyboard);
 
 	glutMainLoop();
 	return 0;
